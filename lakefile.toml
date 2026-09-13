@@ -1,0 +1,10 @@
+name = "computervision"
+version = "0.1.0"
+defaultTargets = ["computervision"]
+
+[[lean_lib]]
+name = "Computervision"
+
+[[lean_exe]]
+name = "computervision"
+root = "Main"
