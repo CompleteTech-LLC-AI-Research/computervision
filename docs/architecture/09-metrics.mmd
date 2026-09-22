@@ -1,0 +1,20 @@
+---
+title: "09 | EMVA1288.SensorParams: all seven derived metric functions"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart TB
+  Params["EMVA1288.SensorParams<br/>All fields Float<br/>gainK: DN/electron<br/>readNoise_e: electrons<br/>saturationCap_e: electrons<br/>darkOffset_DN: DN<br/>darkVariance_DN2: DN squared<br/>deriving Repr"]
+    Conversion["conversionFactor = 1 / gainK<br/>electrons / DN"]
+    ReadNoise["readNoise_DN = sqrt (max 0 darkVariance_DN2)<br/>Uses raw dark variance, including quantization"]
+    Sensitivity["sensitivityThreshold_e = readNoise_e + 0.5<br/>Implemented threshold formula"]
+    SNR["snrMax = sqrt (max 0 saturationCap_e)"]
+    SNRDb["snrMaxDb = 20 * log10 (snrMax)"]
+    DR["dynamicRange = saturationCap_e / sensitivityThreshold_e"]
+    DRDb["dynamicRangeDb = 20 * log10 (dynamicRange)"]
+    Params --> Conversion
+    Params --> ReadNoise
+    Params --> Sensitivity
+    Params --> SNR
+    Params --> DR
+    SNR --> SNRDb
+    Sensitivity --> DR --> DRDb

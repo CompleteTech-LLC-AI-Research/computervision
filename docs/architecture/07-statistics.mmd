@@ -1,0 +1,22 @@
+---
+title: "07 | EMVA1288.lean: complete low-level statistics paths"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart TB
+
+    Temporal["emvaTemporalStats imgA imgB<br/>n = imgA.pixels.size<br/>Returns Float mean, Float temporal variance"]
+    TemporalGuard{"n = 0 or<br/>imgB pixel count differs?"}
+    ZeroTemporal["Return (0, 0)<br/>No error tag propagated"]
+    TemporalMean["First pass<br/>meanY = sum of ((A_i + B_i) / 2) / n"]
+    TemporalDiff["Second pass<br/>d_i = A_i - B_i<br/>Accumulate sumDiff and sumDiffSq<br/>meanDiff = sumDiff / n"]
+    TemporalVar["If n greater than 1:<br/>varDiff = (sumDiffSq - n * meanDiff squared) / (n - 1)<br/>Otherwise varDiff = 0<br/>Return (meanY, varDiff / 2)"]
+    SpatialStats["spatialStats img<br/>n = img.pixels.size<br/>Returns Float mean, Float sample variance"]
+    SpatialGuard{"n = 0?"}
+    ZeroSpatial["Return (0, 0)"]
+    SpatialAccum["One pass: sum and sumSq<br/>mean = sum / n<br/>If n greater than 1:<br/>variance = (sumSq - n * mean squared) / (n - 1)<br/>Otherwise variance = 0<br/>Return (mean, variance)"]
+    Temporal --> TemporalGuard
+    TemporalGuard -->|yes| ZeroTemporal
+    TemporalGuard -->|no| TemporalMean --> TemporalDiff --> TemporalVar
+    SpatialStats --> SpatialGuard
+    SpatialGuard -->|yes| ZeroSpatial
+    SpatialGuard -->|no| SpatialAccum

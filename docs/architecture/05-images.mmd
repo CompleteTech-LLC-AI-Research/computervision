@@ -1,0 +1,32 @@
+---
+title: "05 | Image.lean: every Image function"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart TB
+  Defaults["Inhabited RGB alpha and Inhabited YCbCr alpha<br/>Require Inhabited alpha<br/>All three components use default"]
+  ImageType["Image alpha<br/>width, height: Nat<br/>pixels: Array alpha<br/>deriving Repr<br/>No size or shape invariant in the type"]
+  RGB8ToYCC8["rgb8ToYCbCr8<br/>RGB UInt8 to YCbCr UInt8"]
+  RGBToYCC["rgbToYCbCr: RGB Float to YCbCr Float<br/>Y = 0.299 R + 0.587 G + 0.114 B<br/>Cb = -0.168736 R - 0.331264 G + 0.5 B + 128<br/>Cr = 0.5 R - 0.418688 G - 0.081312 B + 128"]
+  YCC8ToRGB8["yCbCr8ToRGB8<br/>YCbCr UInt8 to RGB UInt8"]
+  YCCToRGB["yCbCrToRGB: YCbCr Float to RGB Float<br/>CbShift = Cb - 128; CrShift = Cr - 128<br/>R = Y + 1.402 CrShift<br/>G = Y - 0.344136 CbShift - 0.714136 CrShift<br/>B = Y + 1.772 CbShift"]
+    OfFn["ofFn width height f<br/>Array.mkEmpty width * height<br/>Outer loop y, inner loop x; push f x y<br/>Returns row-major Image alpha"]
+    GetOptional["get? img x y: Option alpha<br/>Check x below width and y below height<br/>Array optional lookup at y * width + x<br/>Out of bounds or missing pixel: none"]
+    GetDefault["getD img x y: alpha<br/>Requires Inhabited alpha<br/>Same coordinate check; Array.getD<br/>Out of bounds or missing pixel: default"]
+    Map["map f img: Image beta<br/>Array.map f over actual pixels<br/>Preserves declared width and height"]
+    ToYCC["toYCbCr<br/>Image RGB Float to Image YCbCr Float"]
+    ToRGB["toRGB<br/>Image YCbCr Float to Image RGB Float"]
+    ToYCC8["toYCbCr8<br/>Image RGB UInt8 to Image YCbCr UInt8"]
+    ToRGB8["toRGB8<br/>Image YCbCr UInt8 to Image RGB UInt8"]
+    OfFn -->|constructs| ImageType
+    GetOptional -->|reads| ImageType
+    GetDefault -->|reads| ImageType
+    Defaults -. color fallback .-> GetDefault
+    ToYCC --> Map
+    ToRGB --> Map
+    ToYCC8 --> Map
+    ToRGB8 --> Map
+    ToYCC -->|mapping function| RGBToYCC
+    ToRGB -->|mapping function| YCCToRGB
+    ToYCC8 -->|mapping function| RGB8ToYCC8
+    ToRGB8 -->|mapping function| YCC8ToRGB8
+    Map -->|constructs| ImageType

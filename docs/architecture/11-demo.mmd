@@ -1,0 +1,35 @@
+---
+title: "11 | Main.lean: all declarations, elaboration-time examples, and runtime behavior"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart TB
+  Exe["computervision executable"]
+  Format["formatReport r: String<br/>Read r.params; compute derived metrics"]
+  MainModule["Main.lean"]
+  OfFn["ofFn width height f<br/>Array.mkEmpty width * height<br/>Outer loop y, inner loop x; push f x y<br/>Returns row-major Image alpha"]
+  RGB8ToYCC8["rgb8ToYCbCr8<br/>RGB UInt8 to YCbCr UInt8"]
+  Stdout["Standard output via IO.print / IO.println<br/>Only explicit application IO in repository"]
+  ToYCC8["toYCbCr8<br/>Image RGB UInt8 to Image YCbCr UInt8"]
+  YCC8ToRGB8["yCbCr8ToRGB8<br/>YCbCr UInt8 to RGB UInt8"]
+    TestImg["testImg: Image RGB UInt8<br/>Image.ofFn 2 2<br/>x equals y: red (255,0,0)<br/>Otherwise green (0,255,0)"]
+    DemoSensor["demoSensor: SensorParams<br/>gainK = 0.25; readNoise_e = 4.2<br/>saturationCap_e = 10000<br/>darkOffset_DN = 12.5; darkVariance_DN2 = 1.187"]
+    DemoReport["demoReport: Report<br/>params = demoSensor<br/>spatial = some manually supplied NonUniformity<br/>dsnu_DN = 0.95; dsnu_e = 3.8; prnu_percent = 0.72"]
+    Eval["Four elaboration-time #eval commands<br/>1. Convert red RGB UInt8 to YCbCr UInt8<br/>2. Convert literal (76,85,255) to RGB UInt8<br/>3. Convert testImg to YCbCr UInt8<br/>4. IO.print formatted demoReport<br/>Examples print results; no assertions"]
+    MainFn["main: IO Unit<br/>Print title<br/>Print repr of converted red pixel<br/>Print formatted demoReport"]
+    TestImg -->|constructs with| OfFn
+    DemoSensor --> DemoReport
+    Eval --> RGB8ToYCC8
+    Eval --> YCC8ToRGB8
+    TestImg -->|third #eval input| ToYCC8
+    Eval --> ToYCC8
+    Eval --> Format
+    DemoReport -->|manual report input| Format
+    Exe --> MainFn
+    MainFn --> RGB8ToYCC8
+    MainFn --> Format
+    MainFn --> Stdout
+    MainModule -. declares .-> TestImg
+    MainModule -. declares .-> DemoSensor
+    MainModule -. declares .-> DemoReport
+    MainModule -. evaluates .-> Eval
+    MainModule -. declares .-> MainFn
