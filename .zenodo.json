@@ -1,0 +1,31 @@
+{
+  "title": "Computervision: Formal Verification in Lean 4",
+  "description": "Formal verification of RGB, YCbCr and EMVA1288 in Lean 4. Includes proofs for...",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Vu, Kim Lien",
+      "affiliation": "Hanoi University of Science and Technology",
+      "orcid": "0009-0003-9357-8601"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Vu, Kim Lien",
+      "type": "DataCurator",
+      "orcid": "0009-0003-9357-8601"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "keywords": ["lean4", "theorem-proving", "computervision", "formal-verification", "rgb", "ycbcr", "emva1288"],
+  "version": "v1.0.3",
+  "access_right": "open",
+  "communities": [{"identifier": "lean"}],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/vukimlien4706-cpu/computervision",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}
