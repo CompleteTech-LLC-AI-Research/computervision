@@ -1,11 +1,11 @@
 {
   "title": "Computervision: Formal Verification in Lean 4",
-  "description": "Formal verification of RGB, YCbCr and EMVA1288 in Lean 4. Includes proofs for...",
+  "description": "Formal verification of RGB, YCbCr and EMVA1288 in Lean 4. Includes libraries for image processing, color space conversion, and EMVA1288 standard verification.",
   "upload_type": "software",
   "creators": [
     {
       "name": "Vu, Kim Lien",
-      "affiliation": "Hanoi University of Science and Technology",
+      "affiliation": "Hanoi University of Science and Technology, https://ror.org/04nyv3z04",
       "orcid": "0009-0003-9357-8601"
     }
   ],
