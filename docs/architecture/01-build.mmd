@@ -1,0 +1,26 @@
+---
+title: "01 | Repository, build, and execution"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart TB
+
+    Readme["README.md<br/>Project introduction; EMVA/RGB/YCbCr scope<br/>Links to EMVA, Lean, and Zenodo DOI"]
+    Lake["lakefile.toml<br/>name: computervision; version: 0.1.0<br/>lean_lib: Computervision<br/>lean_exe: computervision; root: Main<br/>defaultTargets: computervision"]
+    Toolchain["lean-toolchain<br/>leanprover/lean4:v4.33.1"]
+    Manifest["lake-manifest.json<br/>No external packages<br/>.lake/packages; fixedToolchain: false"]
+    Core["Lean bundled runtime and core facilities<br/>Float, UInt8, UInt64, Nat, Array, Option<br/>Id.run, loops, IO, Repr, DecidableEq, Inhabited"]
+    Build["Lake build<br/>Compile library and executable"]
+    Artifacts[".lake build artifacts<br/>Ignored by .gitignore"]
+    CI[".github/workflows/lean_action_ci.yml<br/>Lean Action CI<br/>push / pull_request / workflow_dispatch<br/>build job on ubuntu-latest"]
+    Checkout["actions/checkout@v5"]
+    LeanAction["leanprover/lean-action@v1<br/>Delegated Lean CI behavior<br/>No explicit custom test steps in workflow"]
+    Exe["computervision executable"]
+    Readme -. documents .-> Lake
+    Lake --> Build
+    Toolchain -. selects compiler .-> Build
+    Manifest -. dependency configuration .-> Build
+    Core -. compiler/runtime support .-> Build
+    Build --> Artifacts
+    Build --> Exe
+    CI --> Checkout --> LeanAction
+    LeanAction -. delegates build tooling .-> Build

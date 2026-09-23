@@ -1,0 +1,36 @@
+---
+title: "Computervision | Architecture overview"
+---
+flowchart TB
+  subgraph ENTRY["ENTRY POINTS"]
+    direction LR
+    Demo["Main.lean<br/>Console demo and four #eval examples"]
+    Client["Library caller<br/>Provides in-memory images"]
+  end
+  Root["Computervision.lean<br/>Public umbrella module"]
+  subgraph LIBRARY["LIBRARY LAYERS · arrows denote imports"]
+    direction LR
+    Emva["EMVA1288.lean<br/>Sensor characterization<br/>Spatial noise and reports"]
+    Images["Image.lean<br/>Array-backed images<br/>Construction, access, mapping"]
+    Basic["Basic.lean<br/>RGB and YCbCr types<br/>Float and UInt8 conversion"]
+    Emva --> Images --> Basic
+  end
+  Demo -->|imports| Root
+  Client -->|imports| Root
+  Root -->|imports| Emva
+  Root -->|imports| Images
+  Root -->|imports| Basic
+  subgraph FLOW["SENSOR ANALYSIS · data flow"]
+    direction LR
+    Pairs["Two dark + two illuminated images<br/>Saturation digital level"]
+    Analyze["runEMVA1288Analysis<br/>Characterize + measure spatial variation"]
+    Report["Option Report<br/>Required sensor parameters<br/>Optional spatial metrics"]
+    Text["formatReport<br/>String for caller to print"]
+    Pairs --> Analyze --> Report --> Text
+  end
+  Emva -. implements .-> Analyze
+  subgraph DELIVERY["BUILD AND SCOPE"]
+    direction LR
+    Build["Lean 4.33.1 + Lake<br/>No external packages<br/>GitHub Actions CI"]
+    Scope["Pure in-memory library + console demo<br/>No acquisition, codecs, GUI, or persistence"]
+  end

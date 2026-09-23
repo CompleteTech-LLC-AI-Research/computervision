@@ -1,0 +1,17 @@
+---
+title: "02 | Exact module import graph: importer to imported module"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart LR
+
+    MainModule["Main.lean"]
+    RootModule["Computervision.lean<br/>Library umbrella; imports only"]
+    BasicModule["Computervision/Basic.lean<br/>Generic color records and FloatConv namespace"]
+    ImageModule["Computervision/Image.lean<br/>Image record and Image namespace"]
+    EmvaModule["Computervision/EMVA1288.lean<br/>EMVA1288 namespace"]
+    MainModule -->|import| RootModule
+    RootModule -->|import| BasicModule
+    RootModule -->|import| ImageModule
+    RootModule -->|import| EmvaModule
+    ImageModule -->|import| BasicModule
+    EmvaModule -->|import| ImageModule

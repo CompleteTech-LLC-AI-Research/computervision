@@ -1,0 +1,19 @@
+---
+title: "04 | Basic.lean: every FloatConv function; full-range BT.601 / JFIF formulas"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart TB
+
+    RGB8ToYCC8["rgb8ToYCbCr8<br/>RGB UInt8 to YCbCr UInt8"]
+    RGBUp["rgbUInt8ToFloat<br/>Each component: toNat.toFloat"]
+    RGBToYCC["rgbToYCbCr: RGB Float to YCbCr Float<br/>Y = 0.299 R + 0.587 G + 0.114 B<br/>Cb = -0.168736 R - 0.331264 G + 0.5 B + 128<br/>Cr = 0.5 R - 0.418688 G - 0.081312 B + 128"]
+    YCCDown["yCbCrFloatToUInt8<br/>clampToUInt8 on y, cb, cr"]
+    YCC8ToRGB8["yCbCr8ToRGB8<br/>YCbCr UInt8 to RGB UInt8"]
+    YCCUp["yCbCrUInt8ToFloat<br/>Each component: toNat.toFloat"]
+    YCCToRGB["yCbCrToRGB: YCbCr Float to RGB Float<br/>CbShift = Cb - 128; CrShift = Cr - 128<br/>R = Y + 1.402 CrShift<br/>G = Y - 0.344136 CbShift - 0.714136 CrShift<br/>B = Y + 1.772 CbShift"]
+    RGBDown["rgbFloatToUInt8<br/>clampToUInt8 on r, g, b"]
+    Clamp["clampToUInt8<br/>x below 0: 0; x above 255: 255<br/>Otherwise x.toUInt64.toUInt8<br/>Integer conversion truncates; no rounding step"]
+    RGB8ToYCC8 -->|first| RGBUp --> RGBToYCC --> YCCDown
+    YCC8ToRGB8 -->|first| YCCUp --> YCCToRGB --> RGBDown
+    YCCDown -->|each channel| Clamp
+    RGBDown -->|each channel| Clamp

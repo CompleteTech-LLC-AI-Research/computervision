@@ -1,0 +1,19 @@
+---
+title: "03 | All explicit data structures and instances"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart TB
+
+    RGB["RGB alpha<br/>r, g, b: alpha<br/>deriving Repr, DecidableEq"]
+    YCC["YCbCr alpha<br/>y, cb, cr: alpha<br/>deriving Repr, DecidableEq"]
+    Defaults["Inhabited RGB alpha and Inhabited YCbCr alpha<br/>Require Inhabited alpha<br/>All three components use default"]
+    ImageType["Image alpha<br/>width, height: Nat<br/>pixels: Array alpha<br/>deriving Repr<br/>No size or shape invariant in the type"]
+    Params["EMVA1288.SensorParams<br/>All fields Float<br/>gainK: DN/electron<br/>readNoise_e: electrons<br/>saturationCap_e: electrons<br/>darkOffset_DN: DN<br/>darkVariance_DN2: DN squared<br/>deriving Repr"]
+    NonUniform["EMVA1288.NonUniformity<br/>All fields Float<br/>dsnu_DN: DN; dsnu_e: electrons<br/>prnu_percent: percent<br/>deriving Repr"]
+    Report["EMVA1288.Report<br/>params: SensorParams<br/>spatial: Option NonUniformity = none<br/>deriving Repr"]
+    RGB -. default instance .-> Defaults
+    YCC -. default instance .-> Defaults
+    RGB -. possible pixel type .-> ImageType
+    YCC -. possible pixel type .-> ImageType
+    Params -. required field .-> Report
+    NonUniform -. optional field .-> Report

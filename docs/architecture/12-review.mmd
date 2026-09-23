@@ -1,0 +1,33 @@
+---
+title: "12 | Code-review boundaries and limitations: current behavior, not proposed features"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart LR
+  Caller["Library caller supplies four Image Float values in DN<br/>darkA, darkB: dark pair<br/>illumA, illumB: illuminated pair<br/>satDN: saturation digital level<br/>Acquisition and RGB-to-scalar conversion are outside this code"]
+  Characterize["characterizeFromPairs<br/>Returns Option SensorParams"]
+  Clamp["clampToUInt8<br/>x below 0: 0; x above 255: 255<br/>Otherwise x.toUInt64.toUInt8<br/>Integer conversion truncates; no rounding step"]
+  DemoReport["demoReport: Report<br/>params = demoSensor<br/>spatial = some manually supplied NonUniformity<br/>dsnu_DN = 0.95; dsnu_e = 3.8; prnu_percent = 0.72"]
+  Eval["Four elaboration-time #eval commands<br/>1. Convert red RGB UInt8 to YCbCr UInt8<br/>2. Convert literal (76,85,255) to RGB UInt8<br/>3. Convert testImg to YCbCr UInt8<br/>4. IO.print formatted demoReport<br/>Examples print results; no assertions"]
+  ImageType["Image alpha<br/>width, height: Nat<br/>pixels: Array alpha<br/>deriving Repr<br/>No size or shape invariant in the type"]
+  MeasureSpatial["measureSpatialNonUniformity<br/>Four Image Float values plus SensorParams<br/>Returns Option NonUniformity"]
+  Params["EMVA1288.SensorParams<br/>All fields Float<br/>gainK: DN/electron<br/>readNoise_e: electrons<br/>saturationCap_e: electrons<br/>darkOffset_DN: DN<br/>darkVariance_DN2: DN squared<br/>deriving Repr"]
+  SpatialStats["spatialStats img<br/>n = img.pixels.size<br/>Returns Float mean, Float sample variance"]
+  Temporal["emvaTemporalStats imgA imgB<br/>n = imgA.pixels.size<br/>Returns Float mean, Float temporal variance"]
+    ShapeRisk["Image shape is unchecked<br/>Public constructors allow pixels.size different from width * height<br/>Statistics compare pixel counts, not dimensions<br/>Equal-sized arrays with different shapes are accepted"]
+    SentinelRisk["Invalid temporal pairs become (0,0)<br/>characterizeFromPairs does not reject this sentinel directly<br/>A valid illuminated pair can produce parameters from invalid dark inputs<br/>No four-image count check before characterization"]
+    NumericRisk["Float domain and numerical robustness<br/>No explicit finite-value validation or positive-gain invariant<br/>Division by zero and log10 of nonpositive values are unguarded<br/>Sum-of-squares variance can suffer cancellation<br/>Temporal variance has no nonnegative clamp"]
+    SpatialRisk["Spatial metrics use averaged pairs directly<br/>No temporal-noise variance subtraction in DSNU/PRNU<br/>Computed spatial variation may include temporal noise"]
+    DemoRisk["Demo uses hard-coded sensor and spatial values<br/>Does not execute runEMVA1288Analysis<br/>No dedicated assertion tests or formal proofs in tracked source<br/>Comments showing expected results are not executable checks"]
+    Scope["Implemented system boundary<br/>In-memory pure transforms plus console demonstration<br/>No camera driver, image codec, file loader, network API, database, GUI,<br/>acquisition pipeline, channel-to-scalar adapter, or report persistence<br/>Runtime dependencies limited to bundled Lean facilities"]
+    ColorRisk["Float color conversions do not clamp channels<br/>UInt8 conversions clamp and truncate; round trips can lose precision<br/>No explicit non-finite Float handling"]
+    ImageType -. caveat .-> ShapeRisk
+    Temporal -. caveat .-> SentinelRisk
+    Characterize -. caveat .-> SentinelRisk
+    Params -. caveat .-> NumericRisk
+    SpatialStats -. caveat .-> NumericRisk
+    Temporal -. caveat .-> NumericRisk
+    MeasureSpatial -. caveat .-> SpatialRisk
+    DemoReport -. caveat .-> DemoRisk
+    Eval -. caveat .-> DemoRisk
+    Caller -. caller responsibility .-> Scope
+    Clamp -. caveat .-> ColorRisk

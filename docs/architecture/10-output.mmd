@@ -1,0 +1,17 @@
+---
+title: "10 | EMVA1288.formatReport: string formatting and output boundary"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart LR
+  Report["EMVA1288.Report<br/>params: SensorParams<br/>spatial: Option NonUniformity = none<br/>deriving Repr"]
+    Format["formatReport r: String<br/>Read r.params; compute derived metrics"]
+    BaseText["Base table<br/>Gain and inverse gain; read noise in electrons and DN<br/>Saturation; sensitivity; SNR and dB; DR and dB; dark offset"]
+    SpatialOption{"r.spatial?"}
+    SpatialText["Append DSNU in DN and electrons<br/>Append PRNU percent"]
+    Footer["Append closing separator<br/>Return formatted String"]
+    Stdout["Standard output via IO.print / IO.println<br/>Only explicit application IO in repository"]
+    Report --> Format --> BaseText --> SpatialOption
+    Metrics["SensorParams derived metrics<br/>See 09-metrics.mmd"] -. values .-> Format
+    SpatialOption -->|none| Footer
+    SpatialOption -->|some| SpatialText --> Footer
+    Footer -->|when caller prints| Stdout

@@ -1,0 +1,29 @@
+---
+title: "08 | EMVA1288.lean: spatial non-uniformity"
+---
+%% Focused view; repeated boundary nodes retain their original names.
+flowchart TB
+  Assemble["some Report<br/>params = characterized parameters<br/>spatial = measureSpatialNonUniformity result<br/>Spatial failure still permits a report"]
+  SpatialStats["spatialStats img<br/>n = img.pixels.size<br/>Returns Float mean, Float sample variance"]
+    MeasureSpatial["measureSpatialNonUniformity<br/>Four Image Float values plus SensorParams<br/>Returns Option NonUniformity"]
+    PairGuard{"darkA has zero pixels<br/>or any of four pixel counts differ?"}
+    NoSpatial["none: omit spatial section"]
+    AverageDark["avgDarkArr_i = (darkA_i + darkB_i) / 2<br/>avgDark Image uses darkA width and height"]
+    CorrectLight["correctedArr_i = (illumA_i + illumB_i) / 2 - avgDarkArr_i<br/>correctedIllum Image uses illumA width and height"]
+    DSNU["spatialStats avgDark yields varDarkSpatial<br/>dsnuDN = sqrt (max 0 varDarkSpatial)<br/>dsnuE = dsnuDN / params.gainK"]
+    Signal["spatialStats correctedIllum<br/>yields meanSignal, varSignalSpatial"]
+    SignalGuard{"meanSignal less than<br/>or equal to zero?"}
+    PRNU["stdSignalSpatial = sqrt (max 0 varSignalSpatial)<br/>prnuPercent = stdSignalSpatial / meanSignal * 100"]
+    SomeSpatial["some NonUniformity<br/>dsnu_DN = dsnuDN; dsnu_e = dsnuE<br/>prnu_percent = prnuPercent"]
+    MeasureSpatial --> PairGuard
+    PairGuard -->|yes| NoSpatial
+    PairGuard -->|no| AverageDark --> CorrectLight
+    AverageDark --> DSNU
+    CorrectLight --> Signal --> SignalGuard
+    DSNU -->|calls| SpatialStats
+    Signal -->|calls| SpatialStats
+    SignalGuard -->|yes| NoSpatial
+    SignalGuard -->|no| PRNU --> SomeSpatial
+    DSNU -->|DSNU fields| SomeSpatial
+    NoSpatial --> Assemble
+    SomeSpatial --> Assemble
